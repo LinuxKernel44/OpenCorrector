@@ -14,6 +14,7 @@
     <string name="main_download_button">Télécharger le modèle</string>
     <string name="main_cancel_download_button">Annuler le téléchargement</string>
     <string name="main_delete_model_button">Supprimer le modèle</string>
+    <string name="main_delete_model_confirm">Supprimer le fichier du modèle téléchargé ? Il faudra le retélécharger pour utiliser OpenCorrector.</string>
     <string name="main_settings_button">Paramètres</string>
     <string name="main_privacy_title">Confidentialité</string>
     <string name="main_privacy_body">Tout le texte que vous corrigez est traité entièrement sur cet appareil. Rien n\'est jamais envoyé à un serveur. Le réseau n\'est utilisé que pour télécharger le modèle une seule fois.</string>

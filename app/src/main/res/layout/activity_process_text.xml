@@ -1,92 +1,98 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:padding="16dp"
     tools:context=".ProcessTextActivity">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/process_text_title"
-        android:textStyle="bold"
-        android:textSize="18sp"
-        android:layout_marginBottom="8dp" />
-
-    <TextView
-        android:id="@+id/textLongTextWarning"
+    <!--
+      Whole popup scrolls as one unit: on real devices, ScrollView/NestedScrollView silently
+      ignores android:maxHeight (a long-standing platform quirk), so a per-field height cap on
+      just the original-text preview does NOT reliably clip it — a long selection pushed the
+      suggestion cards and Cancel button off-screen with no way to reach them. Scrolling the
+      whole dialog, rather than trying to cap one inner view, is what actually works.
+    -->
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#FFF3E0"
-        android:padding="8dp"
-        android:textColor="#E65100"
-        android:layout_marginBottom="8dp"
-        android:visibility="gone"
-        tools:text="@string/process_text_long_text_warning"
-        tools:visibility="visible" />
+        android:orientation="vertical"
+        android:padding="16dp">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/process_text_original_label"
-        android:textStyle="bold"
-        android:textColor="#666666"
-        android:textSize="12sp" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/process_text_title"
+            android:textStyle="bold"
+            android:textSize="18sp"
+            android:layout_marginBottom="8dp" />
 
-    <androidx.core.widget.NestedScrollView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:maxHeight="120dp"
-        android:layout_marginTop="4dp"
-        android:layout_marginBottom="12dp">
+        <TextView
+            android:id="@+id/textLongTextWarning"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#FFF3E0"
+            android:padding="8dp"
+            android:textColor="#E65100"
+            android:layout_marginBottom="8dp"
+            android:visibility="gone"
+            tools:text="@string/process_text_long_text_warning"
+            tools:visibility="visible" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/process_text_original_label"
+            android:textStyle="bold"
+            android:textColor="#666666"
+            android:textSize="12sp" />
 
         <TextView
             android:id="@+id/textOriginal"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="12dp"
             android:textIsSelectable="true"
             tools:text="Voici un exemple de texte avec des fautes d'orthografe et de grammaire." />
-    </androidx.core.widget.NestedScrollView>
 
-    <LinearLayout
-        android:id="@+id/layoutGlobalStatus"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:layout_marginBottom="12dp">
-
-        <ProgressBar
-            android:id="@+id/progressGlobal"
-            style="?android:attr/progressBarStyleSmall"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:layout_marginEnd="8dp" />
-
-        <TextView
-            android:id="@+id/textGlobalStatus"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:id="@+id/layoutGlobalStatus"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            tools:text="@string/process_text_loading_model" />
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="12dp">
+
+            <ProgressBar
+                android:id="@+id/progressGlobal"
+                style="?android:attr/progressBarStyleSmall"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginEnd="8dp" />
+
+            <TextView
+                android:id="@+id/textGlobalStatus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                tools:text="@string/process_text_loading_model" />
+        </LinearLayout>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerSuggestions"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:nestedScrollingEnabled="false"
+            tools:listitem="@layout/item_suggestion"
+            tools:itemCount="3" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/buttonCancel"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/process_text_cancel" />
+
     </LinearLayout>
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerSuggestions"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:nestedScrollingEnabled="false"
-        tools:listitem="@layout/item_suggestion"
-        tools:itemCount="3" />
-
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/buttonCancel"
-        style="@style/Widget.MaterialComponents.Button.TextButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="@string/process_text_cancel" />
-
-</LinearLayout>
+</androidx.core.widget.NestedScrollView>

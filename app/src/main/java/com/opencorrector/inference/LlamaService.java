@@ -54,21 +54,25 @@ public final class LlamaService extends Service {
         createNotificationChannel();
     }
 
+    // The auto-unload timer intentionally does NOT reset on bind/unbind: a client can be bound
+    // (e.g. MainActivity showing status) for as long as the user leaves the screen open without
+    // that counting as "activity". It is scheduled/cancelled solely around real inference work,
+    // in loadModel()/generate() and resetAutoUnloadTimer() — see those for the actual logic.
+    // An earlier version cancelled the timer here, which meant simply having MainActivity open
+    // kept the model resident forever, since every status-check bind reset the idle clock.
     @Override
     public IBinder onBind(Intent intent) {
-        cancelAutoUnloadTimer();
         return binder;
     }
 
     @Override
     public boolean onUnbind(Intent intent) {
-        resetAutoUnloadTimer();
         return true;
     }
 
     @Override
     public void onRebind(Intent intent) {
-        cancelAutoUnloadTimer();
+        // Intentionally empty; see the note above onBind().
     }
 
     @Override
@@ -171,6 +175,10 @@ public final class LlamaService extends Service {
         pendingUnloadRunnable = () -> {
             if (!engine.isGenerating()) {
                 engine.unloadBlocking();
+                // Ends the started-service state so the process can be reclaimed once no
+                // Activity is bound either; if something is still bound, this is a no-op
+                // until that last unbind happens.
+                stopSelf();
             }
         };
         mainHandler.postDelayed(pendingUnloadRunnable, currentUnloadDelayMillis);

@@ -14,6 +14,7 @@
     <string name="main_download_button">Download model</string>
     <string name="main_cancel_download_button">Cancel download</string>
     <string name="main_delete_model_button">Delete model</string>
+    <string name="main_delete_model_confirm">Delete the downloaded model file? You will need to download it again to use OpenCorrector.</string>
     <string name="main_settings_button">Settings</string>
     <string name="main_privacy_title">Privacy</string>
     <string name="main_privacy_body">All text you correct is processed entirely on this device. Nothing is ever sent to a server. The network is used only to download the model file once.</string>

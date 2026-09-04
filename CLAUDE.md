@@ -100,13 +100,64 @@ dans l'historique de llama.cpp (ex: `llama_load_model_from_file` → `llama_mode
 - `local.properties` (non versionné) pointe vers ce SDK.
 - JDK 17 (Eclipse Temurin) utilisé pour Gradle.
 - Gradle 8.7 via wrapper (`gradlew`/`gradlew.bat` + `gradle/wrapper/`), AGP 8.5.2.
-- **Build entièrement validé dans cette session** : `./gradlew :app:assembleDebug` compile
-  Java + JNI + llama.cpp (statique) avec succès en ~40 s (une fois le sous-module cloné),
-  produit un APK debug de ~13 Mo avec `libopencorrector.so` (4,4 Mo). `./gradlew
-  :app:testDebugUnitTest` : 15/15 tests passent (LanguageDetector, TextChunker, TextProcessor).
-- **Non testé dans cette session** : exécution réelle sur un appareil/émulateur (pas de
-  Snapdragon 855 ni d'AVD ARM64 disponible ici), téléchargement réel des ~1 Go de modèle,
-  qualité de correction réelle (voir `docs/LINGUISTIC_TEST_CASES.md` pour le protocole).
+- **Build entièrement validé** : `./gradlew :app:assembleDebug` compile Java + JNI + llama.cpp
+  (statique) avec succès en ~40 s (une fois le sous-module cloné), produit un APK debug de
+  ~13 Mo avec `libopencorrector.so` (4,4 Mo). `./gradlew :app:testDebugUnitTest` : tous les
+  tests passent (LanguageDetector, TextChunker, TextProcessor).
+- **Testé et validé sur matériel réel** (2026-09-04, Samsung Galaxy S10 `SM-G973F`, Exynos 9820,
+  Android 12/API 31, arm64-v8a) : installation via `adb`, téléchargement réel du modèle Qualité
+  depuis Hugging Face avec vérification SHA-256 réussie, génération réelle des 3 modes en
+  français et en anglais (qualité de correction bonne — voir historique de session pour des
+  exemples), chunking réel d'un texte long (2 chunks) avec réassemblage correct, foreground
+  service actif pendant génération, déchargement automatique après inactivité fonctionnel.
+  Vulkan/Snapdragon 855 restent non testés (voir "Pistes non traitées").
+
+## Bugs trouvés et corrigés par le test sur matériel réel (2026-09-04)
+
+Le code compilait et les tests unitaires passaient avant cette session de test, mais **6 bugs
+réels** n'ont été découverts qu'en faisant tourner l'app sur un vrai téléphone. Play-testing
+sur device a une valeur que la relecture de code seule n'a pas — à refaire à chaque changement
+touchant le cycle de vie du service, le layout du popup, ou le chunking.
+
+1. **Contraste illisible en mode sombre système** (`themes.xml`) : `Theme.OpenCorrector`
+   héritait de `.DayNight`, mais toutes les couleurs custom (`colors.xml`, carte "Privacy" en
+   vert clair, fond `surface` gris clair) sont conçues pour un fond clair. En dark mode système,
+   le texte par défaut passait en blanc sur ces fonds clairs → texte quasiment invisible.
+   Corrigé en forçant `Theme.MaterialComponents.Light.*` (pas de vraie palette dark conçue).
+2. **Bouton téléchargement mal étiqueté** (`MainActivity.java`) : le texte du bouton était
+   dérivé de `downloaded` (le modèle EST téléchargé) plutôt que d'un état `isDownloading`
+   dédié — après un téléchargement terminé, le bouton affichait encore « Annuler le
+   téléchargement » alors qu'il n'y avait rien à annuler, et cliquer dessus relançait
+   silencieusement un second téléchargement en doublon. Ajout d'un champ `isDownloading` et
+   séparation claire des 3 états (à télécharger / en cours / terminé).
+3. **`LlamaService` détruit immédiatement à la fermeture du popup** (`LlamaService.java`,
+   `MainActivity.java`, `ProcessTextActivity.java`) : le service n'était que *bound*, jamais
+   *started* (`startService()`) — Android le détruit dès que le dernier client se désinstalle
+   (`unbindService`), ce qui déchargeait le modèle instantanément au lieu de respecter le délai
+   d'inactivité configurable. Corrigé en appelant aussi `startService()` avant `bindService()`,
+   et en appelant `stopSelf()` uniquement quand le timer d'auto-déchargement se déclenche
+   réellement.
+4. **Le timer d'auto-déchargement ne se déclenchait jamais si `MainActivity` restait ouverte**
+   (`LlamaService.java`) : `onBind()`/`onRebind()` annulaient le timer à chaque connexion d'un
+   client, y compris `MainActivity` qui ne fait que lire le statut sans jamais générer de texte.
+   Résultat : le modèle restait chargé indéfiniment tant que l'écran principal était ouvert,
+   contredisant le réglage "5 min d'inactivité". Corrigé en ne gérant plus le timer qu'autour du
+   vrai travail d'inférence (`loadModel()`/`generate()`), jamais autour du bind/unbind.
+5. **Popup non scrollable pour un texte long** (`activity_process_text.xml`) : le layout
+   utilisait `android:maxHeight="120dp"` sur un `NestedScrollView` pour plafonner l'aperçu du
+   texte original — `ScrollView`/`NestedScrollView` **ignorent silencieusement `maxHeight`**
+   (limitation connue de la plateforme Android), donc pour un texte long l'aperçu prenait tout
+   l'écran et poussait les 3 suggestions + le bouton Annuler hors champ, sans aucun moyen d'y
+   accéder. Corrigé en enveloppant tout le contenu du popup dans un unique `NestedScrollView`
+   racine plutôt que d'essayer de plafonner un champ interne.
+6. **Perte d'espace à la frontière entre deux chunks** (`TextChunker.java`) : `join()`
+   concaténait les sorties du modèle bout à bout en supposant qu'elles conservaient l'espace de
+   fin de chunk de l'entrée d'origine — mais le modèle régénère le texte, il ne le recopie pas
+   littéralement, et ne reproduit pas fiablement l'espace/saut de ligne final. Résultat observé :
+   « ...hier soir.Le projet avance... » (deux phrases collées sans espace) après réassemblage
+   d'un texte de 1275 tokens en 2 chunks. Corrigé en faisant porter à chaque `Chunk` son propre
+   `trailingSeparator` (extrait explicitement au découpage) et en le réinsérant explicitement
+   dans `join()`, plutôt que de faire confiance à la sortie du modèle pour le préserver.
 
 ## Dépôt GitHub
 

@@ -1,6 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <style name="Theme.OpenCorrector" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+    <!--
+      Forced Light (not DayNight): every custom color in colors.xml (surface gray, privacy-card
+      green, etc.) was designed for a light background. On a device in system dark mode,
+      DayNight flipped default text colors to light-on-light against those fixed backgrounds,
+      making several labels unreadable (e.g. the Privacy card body). Forcing Light keeps text
+      contrast correct until a real dark palette is designed.
+    -->
+    <style name="Theme.OpenCorrector" parent="Theme.MaterialComponents.Light.NoActionBar">
         <item name="colorPrimary">@color/primary</item>
         <item name="colorPrimaryDark">@color/primary_dark</item>
         <item name="colorAccent">@color/accent</item>
@@ -8,7 +15,7 @@
     </style>
 
     <!-- Used by ProcessTextActivity so it renders as a floating popup/dialog instead of a full-screen activity. -->
-    <style name="Theme.OpenCorrector.Popup" parent="Theme.MaterialComponents.DayNight.Dialog">
+    <style name="Theme.OpenCorrector.Popup" parent="Theme.MaterialComponents.Light.Dialog">
         <item name="colorPrimary">@color/primary</item>
         <item name="colorPrimaryDark">@color/primary_dark</item>
         <item name="colorAccent">@color/accent</item>

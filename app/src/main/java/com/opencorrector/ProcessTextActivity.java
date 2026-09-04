@@ -111,7 +111,11 @@ public final class ProcessTextActivity extends AppCompatActivity implements Sugg
             return;
         }
 
-        bindService(new Intent(this, LlamaService.class), serviceConnection, Context.BIND_AUTO_CREATE);
+        // Started (not just bound): see MainActivity.onStart() for why this matters — without
+        // it, closing this popup would destroy LlamaService and unload the model immediately.
+        Intent serviceIntent = new Intent(this, LlamaService.class);
+        startService(serviceIntent);
+        bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE);
     }
 
     @Override

@@ -33,7 +33,26 @@ public class TextChunkerTest {
         for (TextChunker.Chunk c : chunks) {
             asIs.add(c.text);
         }
-        assertEquals(text, TextChunker.join(asIs));
+        assertEquals(text, TextChunker.join(asIs, chunks));
+    }
+
+    @Test
+    public void joinReinsertsSeparatorEvenWhenModelOutputDropsTrailingWhitespace() {
+        // Simulates the real llama.cpp bug this test guards against: the model regenerates each
+        // chunk's text and does not reliably reproduce trailing whitespace, so a naive
+        // concatenation of "processed" outputs can glue two sentences together with no space.
+        String text = "Premiere phrase. Deuxieme phrase.";
+        List<TextChunker.Chunk> chunks = TextChunker.split(text, 2, WORD_COUNTER);
+        assertTrue("expected at least 2 chunks", chunks.size() >= 2);
+
+        List<String> modelOutputsWithNoTrailingSpace = new ArrayList<>();
+        for (TextChunker.Chunk c : chunks) {
+            modelOutputsWithNoTrailingSpace.add(c.text.trim());
+        }
+
+        String joined = TextChunker.join(modelOutputsWithNoTrailingSpace, chunks);
+        assertTrue("chunks must not be glued together without a separator: '" + joined + "'",
+                joined.contains("phrase. Deuxieme"));
     }
 
     @Test
@@ -59,6 +78,6 @@ public class TextChunkerTest {
         for (TextChunker.Chunk c : chunks) {
             texts.add(c.text);
         }
-        assertEquals(text, TextChunker.join(texts));
+        assertEquals(text, TextChunker.join(texts, chunks));
     }
 }

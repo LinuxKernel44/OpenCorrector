@@ -9,13 +9,19 @@ import java.util.regex.Pattern;
  * Splits long input text into model-sized chunks that can be corrected independently and
  * reassembled without altering meaning. Splits only at sentence boundaries (or, as a last
  * resort for one very long sentence, at commas/spaces) so a chunk boundary never lands mid
- * word. The original whitespace between sentences is preserved verbatim so {@link #join}
- * reproduces the exact spacing/newlines of the input.
+ * word.
+ *
+ * Each chunk records the whitespace that originally followed it ({@link Chunk#trailingSeparator})
+ * so {@link #join} can re-insert it explicitly between chunk OUTPUTS. This matters because the
+ * model is not a literal passthrough: it regenerates each chunk's text and does not reliably
+ * reproduce trailing whitespace, so joining raw model outputs back-to-back can glue the last
+ * word of one chunk directly onto the first word of the next with no space at all.
  */
 public final class TextChunker {
 
-    /** Splits after ., !, ? or newlines, keeping the separator attached to the following piece. */
+    /** Splits after ., !, ? or newlines, keeping the separator attached to the preceding piece. */
     private static final Pattern SENTENCE_BOUNDARY = Pattern.compile("(?<=[.!?])\\s+|\\n+");
+    private static final Pattern TRAILING_WHITESPACE = Pattern.compile("\\s+$");
 
     private TextChunker() {
     }
@@ -26,9 +32,11 @@ public final class TextChunker {
 
     public static final class Chunk {
         public final String text;
+        public final String trailingSeparator;
 
-        public Chunk(String text) {
+        public Chunk(String text, String trailingSeparator) {
             this.text = text;
+            this.trailingSeparator = trailingSeparator;
         }
     }
 
@@ -53,29 +61,45 @@ public final class TextChunker {
                     // Single sentence already exceeds the limit: flush what we can and
                     // hard-split the oversized sentence itself instead of losing text.
                     for (String piece : hardSplit(current.toString(), maxTokens, counter)) {
-                        result.add(new Chunk(piece));
+                        result.add(toChunk(piece));
                     }
                     current.setLength(0);
                 }
             } else {
-                result.add(new Chunk(current.toString()));
+                result.add(toChunk(current.toString()));
                 current.setLength(0);
                 current.append(sentence);
             }
         }
         if (current.length() > 0) {
-            result.add(new Chunk(current.toString()));
+            result.add(toChunk(current.toString()));
         }
         return result;
     }
 
-    /** Reassembles processed chunks back into one text. Chunks already carry their own spacing. */
-    public static String join(List<String> processedChunks) {
+    /**
+     * Reassembles processed chunk outputs back into one text, re-inserting each chunk's
+     * recorded {@link Chunk#trailingSeparator} between them rather than trusting the model to
+     * have preserved it. Each output is trimmed first since the model's own leading/trailing
+     * whitespace is not meaningful (only the recorded separator is).
+     */
+    public static String join(List<String> processedChunks, List<Chunk> originalChunks) {
         StringBuilder sb = new StringBuilder();
-        for (String chunk : processedChunks) {
-            sb.append(chunk);
+        for (int i = 0; i < processedChunks.size(); i++) {
+            sb.append(processedChunks.get(i).trim());
+            if (i < originalChunks.size()) {
+                sb.append(originalChunks.get(i).trailingSeparator);
+            }
         }
         return sb.toString();
+    }
+
+    private static Chunk toChunk(String rawText) {
+        Matcher trailing = TRAILING_WHITESPACE.matcher(rawText);
+        if (trailing.find()) {
+            return new Chunk(rawText.substring(0, trailing.start()), rawText.substring(trailing.start()));
+        }
+        return new Chunk(rawText, "");
     }
 
     private static List<String> splitIntoSentencePieces(String text) {

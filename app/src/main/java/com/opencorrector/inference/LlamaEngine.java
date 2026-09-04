@@ -146,7 +146,7 @@ public final class LlamaEngine {
                     processedChunks.add(result);
                 }
 
-                String finalText = TextChunker.join(processedChunks);
+                String finalText = TextChunker.join(processedChunks, chunks);
                 callback.onComplete(finalText);
             } catch (OutOfMemoryError oom) {
                 Log.e(TAG, "Out of memory during generation", oom);

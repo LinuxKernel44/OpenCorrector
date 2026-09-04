@@ -35,6 +35,7 @@ public final class MainActivity extends AppCompatActivity {
 
     private LlamaService boundService;
     private boolean serviceBound = false;
+    private boolean isDownloading = false;
 
     private final ServiceConnection serviceConnection = new ServiceConnection() {
         @Override
@@ -60,7 +61,13 @@ public final class MainActivity extends AppCompatActivity {
         appPreferences = new AppPreferences(this);
         modelDownloader = new ModelDownloader(this);
 
-        binding.buttonDownload.setOnClickListener(v -> onDownloadClicked());
+        binding.buttonDownload.setOnClickListener(v -> {
+            if (isDownloading) {
+                modelDownloader.cancelDownload();
+            } else {
+                onDownloadClicked();
+            }
+        });
         binding.buttonDeleteModel.setOnClickListener(v -> onDeleteClicked());
         binding.buttonSettings.setOnClickListener(v ->
                 startActivity(new Intent(this, SettingsActivity.class)));
@@ -71,7 +78,12 @@ public final class MainActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        bindService(new Intent(this, LlamaService.class), serviceConnection, Context.BIND_AUTO_CREATE);
+        // Started (not just bound): otherwise Android destroys LlamaService the instant the
+        // last Activity unbinds, unloading the model immediately instead of respecting the
+        // configurable inactivity delay (LlamaService.resetAutoUnloadTimer / stopSelf()).
+        Intent serviceIntent = new Intent(this, LlamaService.class);
+        startService(serviceIntent);
+        bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE);
         refreshStatus();
     }
 
@@ -100,10 +112,18 @@ public final class MainActivity extends AppCompatActivity {
             binding.textModelStatus.setText(R.string.main_status_not_downloaded);
         }
 
-        binding.buttonDownload.setText(downloaded
-                ? R.string.main_cancel_download_button
-                : R.string.main_download_button);
-        binding.buttonDeleteModel.setVisibility(downloaded ? android.view.View.VISIBLE : android.view.View.GONE);
+        if (isDownloading) {
+            binding.buttonDownload.setVisibility(android.view.View.VISIBLE);
+            binding.buttonDownload.setEnabled(true);
+            binding.buttonDownload.setText(R.string.main_cancel_download_button);
+        } else if (downloaded) {
+            binding.buttonDownload.setVisibility(android.view.View.GONE);
+        } else {
+            binding.buttonDownload.setVisibility(android.view.View.VISIBLE);
+            binding.buttonDownload.setEnabled(true);
+            binding.buttonDownload.setText(R.string.main_download_button);
+        }
+        binding.buttonDeleteModel.setVisibility(downloaded && !isDownloading ? android.view.View.VISIBLE : android.view.View.GONE);
     }
 
     private void onDownloadClicked() {
@@ -116,7 +136,8 @@ public final class MainActivity extends AppCompatActivity {
             return;
         }
 
-        binding.buttonDownload.setEnabled(false);
+        isDownloading = true;
+        refreshStatus();
         binding.progressDownload.setVisibility(android.view.View.VISIBLE);
         binding.textDownloadProgress.setVisibility(android.view.View.VISIBLE);
 
@@ -137,7 +158,7 @@ public final class MainActivity extends AppCompatActivity {
             @Override
             public void onCompleted(File modelFile) {
                 runOnUiThread(() -> {
-                    binding.buttonDownload.setEnabled(true);
+                    isDownloading = false;
                     binding.progressDownload.setVisibility(android.view.View.GONE);
                     binding.textDownloadProgress.setVisibility(android.view.View.GONE);
                     refreshStatus();
@@ -147,7 +168,7 @@ public final class MainActivity extends AppCompatActivity {
             @Override
             public void onError(String errorMessageResKey, String debugDetail) {
                 runOnUiThread(() -> {
-                    binding.buttonDownload.setEnabled(true);
+                    isDownloading = false;
                     binding.progressDownload.setVisibility(android.view.View.GONE);
                     binding.textDownloadProgress.setVisibility(android.view.View.GONE);
                     showError(getString(R.string.error_download_failed, debugDetail));
@@ -158,7 +179,7 @@ public final class MainActivity extends AppCompatActivity {
             @Override
             public void onCancelled() {
                 runOnUiThread(() -> {
-                    binding.buttonDownload.setEnabled(true);
+                    isDownloading = false;
                     binding.progressDownload.setVisibility(android.view.View.GONE);
                     binding.textDownloadProgress.setVisibility(android.view.View.GONE);
                     refreshStatus();
@@ -170,7 +191,7 @@ public final class MainActivity extends AppCompatActivity {
     private void onDeleteClicked() {
         LlamaModel selected = appPreferences.getSelectedModel();
         new AlertDialog.Builder(this)
-                .setMessage(R.string.main_delete_model_button)
+                .setMessage(R.string.main_delete_model_confirm)
                 .setPositiveButton(android.R.string.ok, (dialog, which) -> {
                     modelDownloader.deleteModel(selected);
                     refreshStatus();
