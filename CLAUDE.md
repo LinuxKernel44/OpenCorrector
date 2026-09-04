@@ -164,6 +164,24 @@ touchant le cycle de vie du service, le layout du popup, ou le chunking.
 `https://github.com/LinuxKernel44/OpenCorrector` (public, appartient à l'utilisateur,
 `gh auth status` confirme un compte `LinuxKernel44` déjà authentifié sur cette machine).
 
+## Signature de release
+
+- Clé de signature générée le 2026-09-04 : `C:\Users\Utilisateur\.android-keystores\opencorrector-release.jks`
+  (alias `opencorrector`, RSA 2048, validité 30 ans). **Ce fichier et son mot de passe ne sont
+  ni committés ni sauvegardés ailleurs que sur ce poste** — s'ils sont perdus, il sera impossible
+  de publier une mise à jour signée avec la même identité (les utilisateurs devraient
+  désinstaller/réinstaller). Sauvegarder ce fichier hors de ce PC (ex. gestionnaire de mots de
+  passe + coffre chiffré séparé) est fortement recommandé avant d'aller plus loin.
+- Mot de passe et chemin réels dans `keystore.properties` à la racine du dépôt (gitignore, jamais
+  committé). `app/build.gradle` lit ce fichier pour `signingConfigs.release` ; sans lui,
+  `assembleRelease`/`bundleRelease` ne signent simplement pas (le build debug n'est pas affecté).
+- Empreinte SHA-256 du certificat (publique, sans risque de la partager) :
+  `19:4E:9E:C6:5A:2F:FF:9E:FE:A3:EB:EC:16:D9:75:D1:CD:07:6C:F4:C6:DE:FB:43:83:A4:44:01:6D:FB:26:AF`
+- Release GitHub `v1.0.0` publiée le 2026-09-04 avec l'APK release signé en asset (build validé
+  par un smoke test sur le SM-G973F après réinstallation propre).
+- Pour reconstruire en local : `./gradlew :app:assembleRelease` avec `keystore.properties`
+  présent à la racine.
+
 ## Pistes non traitées / suite possible
 
 - Support Vulkan réellement testé sur Adreno 640 (actuellement juste scaffoldé, OFF par défaut).
