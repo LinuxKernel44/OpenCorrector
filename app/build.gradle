@@ -2,6 +2,17 @@ plugins {
     id 'com.android.application'
 }
 
+// Release signing credentials are kept out of version control (this is a public repo):
+// keystore.properties is gitignored and holds storeFile/storePassword/keyAlias/keyPassword.
+// Without it, assembleRelease/bundleRelease simply aren't available — debug builds are
+// unaffected. See CLAUDE.md for how to regenerate the keystore if it's ever lost.
+def keystorePropertiesFile = rootProject.file("keystore.properties")
+def keystoreProperties = new Properties()
+def hasReleaseSigning = keystorePropertiesFile.exists()
+if (hasReleaseSigning) {
+    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+}
+
 android {
     namespace 'com.opencorrector'
     compileSdk 34
@@ -35,10 +46,24 @@ android {
         }
     }
 
+    signingConfigs {
+        if (hasReleaseSigning) {
+            release {
+                storeFile file(keystoreProperties['storeFile'])
+                storePassword keystoreProperties['storePassword']
+                keyAlias keystoreProperties['keyAlias']
+                keyPassword keystoreProperties['keyPassword']
+            }
+        }
+    }
+
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            if (hasReleaseSigning) {
+                signingConfig signingConfigs.release
+            }
         }
         debug {
             // Native inference is slow without optimizations; keep debug builds usable for real testing.
