@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="model_variant_entries">
+        <item>@string/pref_model_variant_quality</item>
+        <item>@string/pref_model_variant_fast</item>
+    </string-array>
+    <string-array name="model_variant_values">
+        <item>quality</item>
+        <item>fast</item>
+    </string-array>
+
+    <string-array name="thread_count_entries">
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+        <item>6</item>
+        <item>8</item>
+    </string-array>
+    <string-array name="thread_count_values">
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+        <item>6</item>
+        <item>8</item>
+    </string-array>
+
+    <string-array name="unload_delay_entries">
+        <item>1 min</item>
+        <item>2 min</item>
+        <item>5 min</item>
+        <item>10 min</item>
+        <item>30 min</item>
+    </string-array>
+    <string-array name="unload_delay_values">
+        <item>1</item>
+        <item>2</item>
+        <item>5</item>
+        <item>10</item>
+        <item>30</item>
+    </string-array>
+</resources>

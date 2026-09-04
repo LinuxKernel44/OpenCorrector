@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">OpenCorrector</string>
+    <string name="settings_title">Paramètres</string>
+
+    <!-- Écran principal -->
+    <string name="main_status_title">État du modèle</string>
+    <string name="main_status_not_downloaded">Non téléchargé</string>
+    <string name="main_status_downloading">Téléchargement…</string>
+    <string name="main_status_ready">Prêt</string>
+    <string name="main_status_loaded">Chargé en mémoire</string>
+    <string name="main_status_error">Erreur</string>
+    <string name="main_current_model">Modèle actuel : %1$s</string>
+    <string name="main_download_button">Télécharger le modèle</string>
+    <string name="main_cancel_download_button">Annuler le téléchargement</string>
+    <string name="main_delete_model_button">Supprimer le modèle</string>
+    <string name="main_settings_button">Paramètres</string>
+    <string name="main_privacy_title">Confidentialité</string>
+    <string name="main_privacy_body">Tout le texte que vous corrigez est traité entièrement sur cet appareil. Rien n\'est jamais envoyé à un serveur. Le réseau n\'est utilisé que pour télécharger le modèle une seule fois.</string>
+    <string name="main_howto_title">Comment utiliser l\'application</string>
+    <string name="main_howto_body">Sélectionnez du texte dans n\'importe quelle application, appuyez sur « Corriger avec OpenCorrector » dans le menu de sélection, choisissez une proposition et remplacez le texte.</string>
+    <string name="download_progress">%1$s / %2$s (%3$d%%)</string>
+
+    <!-- Popup de correction -->
+    <string name="process_text_title">OpenCorrector</string>
+    <string name="process_text_original_label">Texte original</string>
+    <string name="process_text_loading_model">Chargement du modèle…</string>
+    <string name="process_text_generating">Génération en cours…</string>
+    <string name="process_text_mode_correction">Corrigé</string>
+    <string name="process_text_mode_formal">Plus formel</string>
+    <string name="process_text_mode_concise">Plus concis</string>
+    <string name="process_text_replace">Remplacer</string>
+    <string name="process_text_copy">Copier</string>
+    <string name="process_text_cancel">Annuler</string>
+    <string name="process_text_retry">Réessayer</string>
+    <string name="process_text_readonly_notice">Cette application ne permet pas de remplacer le texte sélectionné ici ; vous pouvez tout de même copier le résultat.</string>
+    <string name="process_text_long_text_warning">Ce texte est long (environ %1$d tokens). Il sera traité en %2$d parties puis réassemblé automatiquement.</string>
+
+    <!-- Notification du service au premier plan -->
+    <string name="service_notification_channel_name">Génération de texte locale</string>
+    <string name="service_notification_title_loading">Chargement du modèle OpenCorrector…</string>
+    <string name="service_notification_title_generating">Génération de texte avec OpenCorrector…</string>
+    <string name="service_notification_text">Le traitement s\'effectue entièrement sur cet appareil.</string>
+
+    <!-- Paramètres -->
+    <string name="pref_category_model">Modèle</string>
+    <string name="pref_model_variant_title">Variante du modèle</string>
+    <string name="pref_model_variant_quality">Qualité — Qwen2.5-1.5B-Instruct (Q4_K_M, ~1 Go)</string>
+    <string name="pref_model_variant_fast">Rapide — Qwen2.5-0.5B-Instruct (Q4_K_M, ~400 Mo)</string>
+    <string name="pref_category_performance">Performance</string>
+    <string name="pref_threads_title">Threads CPU</string>
+    <string name="pref_threads_summary">Nombre de threads CPU utilisés pour l\'inférence (recommandé : 4 à 6 sur Snapdragon 855)</string>
+    <string name="pref_unload_delay_title">Délai de déchargement</string>
+    <string name="pref_unload_delay_summary">Décharge le modèle de la mémoire après ce nombre de minutes d\'inactivité</string>
+    <string name="pref_gpu_title">Accélération GPU (expérimental)</string>
+    <string name="pref_gpu_summary">Utilise l\'accélération Vulkan si disponible sur cet appareil. L\'inférence fonctionne entièrement sur CPU si désactivé ou non supporté.</string>
+    <string name="pref_category_about">À propos</string>
+    <string name="pref_privacy_title">Confidentialité</string>
+    <string name="pref_privacy_summary">Votre texte ne quitte jamais cet appareil</string>
+
+    <!-- Erreurs -->
+    <string name="error_model_missing">Le modèle n\'est pas encore téléchargé. Ouvrez OpenCorrector et téléchargez-le depuis l\'écran principal.</string>
+    <string name="error_download_failed">Échec du téléchargement : %1$s</string>
+    <string name="error_checksum_mismatch">Le fichier téléchargé est corrompu (le checksum ne correspond pas). Veuillez le télécharger à nouveau.</string>
+    <string name="error_model_corrupted">Le fichier du modèle semble corrompu ou incomplet.</string>
+    <string name="error_out_of_memory">Mémoire insuffisante pour charger le modèle.</string>
+    <string name="error_native_engine">Une erreur interne d\'inférence est survenue.</string>
+    <string name="error_inference_cancelled">Génération annulée.</string>
+    <string name="error_empty_text">Aucun texte à traiter.</string>
+    <string name="error_text_too_long">Ce texte est trop long pour être traité, même en le découpant.</string>
+    <string name="error_replace_not_supported">Cette application ne permet pas de remplacer le texte ici.</string>
+    <string name="error_network_unavailable">Aucune connexion réseau disponible pour télécharger le modèle.</string>
+</resources>

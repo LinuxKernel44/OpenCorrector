@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <PreferenceCategory app:title="@string/pref_category_model">
+        <ListPreference
+            app:key="pref_model_variant"
+            app:title="@string/pref_model_variant_title"
+            app:entries="@array/model_variant_entries"
+            app:entryValues="@array/model_variant_values"
+            app:defaultValue="quality"
+            app:useSimpleSummaryProvider="true" />
+    </PreferenceCategory>
+
+    <PreferenceCategory app:title="@string/pref_category_performance">
+        <ListPreference
+            app:key="pref_cpu_threads"
+            app:title="@string/pref_threads_title"
+            app:summary="@string/pref_threads_summary"
+            app:entries="@array/thread_count_entries"
+            app:entryValues="@array/thread_count_values"
+            app:defaultValue="4" />
+
+        <ListPreference
+            app:key="pref_unload_delay_minutes"
+            app:title="@string/pref_unload_delay_title"
+            app:summary="@string/pref_unload_delay_summary"
+            app:entries="@array/unload_delay_entries"
+            app:entryValues="@array/unload_delay_values"
+            app:defaultValue="5" />
+
+        <SwitchPreferenceCompat
+            app:key="pref_gpu_enabled"
+            app:title="@string/pref_gpu_title"
+            app:summary="@string/pref_gpu_summary"
+            app:defaultValue="false" />
+    </PreferenceCategory>
+
+    <PreferenceCategory app:title="@string/pref_category_about">
+        <Preference
+            app:key="pref_privacy_info"
+            app:title="@string/pref_privacy_title"
+            app:summary="@string/pref_privacy_summary"
+            app:selectable="false" />
+    </PreferenceCategory>
+
+</PreferenceScreen>

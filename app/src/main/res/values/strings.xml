@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">OpenCorrector</string>
+    <string name="settings_title">Settings</string>
+
+    <!-- Main screen -->
+    <string name="main_status_title">Model status</string>
+    <string name="main_status_not_downloaded">Not downloaded</string>
+    <string name="main_status_downloading">Downloading…</string>
+    <string name="main_status_ready">Ready</string>
+    <string name="main_status_loaded">Loaded in memory</string>
+    <string name="main_status_error">Error</string>
+    <string name="main_current_model">Current model: %1$s</string>
+    <string name="main_download_button">Download model</string>
+    <string name="main_cancel_download_button">Cancel download</string>
+    <string name="main_delete_model_button">Delete model</string>
+    <string name="main_settings_button">Settings</string>
+    <string name="main_privacy_title">Privacy</string>
+    <string name="main_privacy_body">All text you correct is processed entirely on this device. Nothing is ever sent to a server. The network is used only to download the model file once.</string>
+    <string name="main_howto_title">How to use</string>
+    <string name="main_howto_body">Select any text in any app, tap “Correct with OpenCorrector” in the selection menu, choose a suggestion and replace it.</string>
+    <string name="download_progress">%1$s / %2$s (%3$d%%)</string>
+
+    <!-- Process text popup -->
+    <string name="process_text_title">OpenCorrector</string>
+    <string name="process_text_original_label">Original text</string>
+    <string name="process_text_loading_model">Loading model…</string>
+    <string name="process_text_generating">Generating…</string>
+    <string name="process_text_mode_correction">Corrected</string>
+    <string name="process_text_mode_formal">More formal</string>
+    <string name="process_text_mode_concise">More concise</string>
+    <string name="process_text_replace">Replace</string>
+    <string name="process_text_copy">Copy</string>
+    <string name="process_text_cancel">Cancel</string>
+    <string name="process_text_retry">Retry</string>
+    <string name="process_text_readonly_notice">This app does not allow replacing the selected text here; you can still copy the result.</string>
+    <string name="process_text_long_text_warning">This text is long (%1$d tokens, approx.). It will be processed in %2$d parts and reassembled automatically.</string>
+
+    <!-- Foreground service notification -->
+    <string name="service_notification_channel_name">Local text generation</string>
+    <string name="service_notification_title_loading">Loading OpenCorrector model…</string>
+    <string name="service_notification_title_generating">Generating text with OpenCorrector…</string>
+    <string name="service_notification_text">Processing runs entirely on this device.</string>
+
+    <!-- Settings -->
+    <string name="pref_category_model">Model</string>
+    <string name="pref_model_variant_title">Model variant</string>
+    <string name="pref_model_variant_quality">Quality — Qwen2.5-1.5B-Instruct (Q4_K_M, ~1 GB)</string>
+    <string name="pref_model_variant_fast">Fast — Qwen2.5-0.5B-Instruct (Q4_K_M, ~400 MB)</string>
+    <string name="pref_category_performance">Performance</string>
+    <string name="pref_threads_title">CPU threads</string>
+    <string name="pref_threads_summary">Number of CPU threads used for inference (recommended: 4–6 on Snapdragon 855)</string>
+    <string name="pref_unload_delay_title">Unload delay</string>
+    <string name="pref_unload_delay_summary">Unload the model from memory after this many minutes of inactivity</string>
+    <string name="pref_gpu_title">GPU acceleration (experimental)</string>
+    <string name="pref_gpu_summary">Use Vulkan acceleration if available on this device. Inference works fully on CPU if disabled or unsupported.</string>
+    <string name="pref_category_about">About</string>
+    <string name="pref_privacy_title">Privacy</string>
+    <string name="pref_privacy_summary">Your text never leaves this device</string>
+
+    <!-- Errors -->
+    <string name="error_model_missing">The model is not downloaded yet. Open OpenCorrector and download it from the main screen.</string>
+    <string name="error_download_failed">Download failed: %1$s</string>
+    <string name="error_checksum_mismatch">The downloaded file is corrupted (checksum mismatch). Please download it again.</string>
+    <string name="error_model_corrupted">The model file appears to be corrupted or incomplete.</string>
+    <string name="error_out_of_memory">Not enough memory available to load the model.</string>
+    <string name="error_native_engine">An internal inference error occurred.</string>
+    <string name="error_inference_cancelled">Generation cancelled.</string>
+    <string name="error_empty_text">No text to process.</string>
+    <string name="error_text_too_long">This text is too long to process, even in chunks.</string>
+    <string name="error_replace_not_supported">This app does not support replacing the text here.</string>
+    <string name="error_network_unavailable">No network connection available to download the model.</string>
+</resources>
